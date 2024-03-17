@@ -31,7 +31,7 @@ class TuringMachine:
     func = self.function
     if test is None:
       correct_answers = 0
-      log_flag = ('log' in self.function)*2
+      log_flag = ('log' in self.function)
       for x in range(0 + log_flag, 100 + log_flag):
         values = [abs(x + randint(-5, 5)) + log_flag for x in range(self.variables_num)]
         values[0] = x
