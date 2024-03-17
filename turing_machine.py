@@ -46,8 +46,9 @@ class TuringMachine:
           correct_answers += 1
 
       logs += f'Correct answers: {correct_answers}'
+      mark = self.get_mark(correct_answers, criteria)
 
-      return self.get_mark(correct_answers, criteria), logs
+      return mark, logs
 
     else:
       if len(test) != self.variables_num:
