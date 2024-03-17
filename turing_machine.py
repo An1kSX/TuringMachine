@@ -40,7 +40,7 @@ class TuringMachine:
         MT_value = sum([int(j) for j in tape])-1
         func_value = self.calculate(values)
         if MT_value != func_value:
-          logs += f'Fail! Function value: {func_value}, Turing Machine value: {MT_value}, variables values: [{values}]\n'
+          logs += f'Fail! Function value: {func_value}, Turing Machine value: {MT_value}, variables values: {values}\n'
 
         else:
           correct_answers += 1
