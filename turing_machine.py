@@ -4,7 +4,7 @@ import time
 from random import randint
 from typing import Union
 
-from read_file import mt_code_read
+from .read_file import mt_code_read
 
 RE_VARS = re.compile(r"x[0-9]+")
 
