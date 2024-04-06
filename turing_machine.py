@@ -36,12 +36,12 @@ class TuringMachine:
         self.variables_num = len(self.variables_names)
         self.time_limit = time_limit
 
-        correct_answers = 0
-        log_flag = ('log' in self.function)
-
         if type(test) is int:
+            correct_answers = 0
+            log_flag = ('log' in self.function)
             mark_multiplier = 100/test
             self.start_time = time.time()
+            
             for x in range(0 + log_flag, test + log_flag):
                 values = [abs(x + randint(-5, 5)) + log_flag for y in range(self.variables_num)]
                 if self.variables_num > 0:
