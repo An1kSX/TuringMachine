@@ -6,7 +6,7 @@ from typing import Union
 
 from read_file import mt_code_read
 
-RE_VAR_PATTERN = re.compile(r"x[0-9]+")
+RE_VARS = re.compile(r"x[0-9]+")
 
 
 class TuringMachine:
@@ -23,14 +23,14 @@ class TuringMachine:
         self.logs = ''
 
     def test(self, submission_file: str, problem: str, criteria: list[int], time_limit: int,
-             test: Union[list[int], int]) -> tuple:
+             test: Union[list[int], int], observer=None) -> tuple:
         self.program, self.logs = mt_code_read(submission_file)
         if len(self.program) == 0:
             return 2, self.logs
         self.start_state = list(self.program.keys())[0]
         self.function = problem.replace('div', '//').replace('mod', '%')
         self.function = self.function.replace('^', '**')
-        variables_in_problem = re.findall(RE_VAR_PATTERN, problem)
+        variables_in_problem = re.findall(RE_VARS, problem)
         self.variables_names = sorted(list(set(variables_in_problem)))
         self.variables_num = len(self.variables_names)
         self.time_limit = time_limit
@@ -40,6 +40,8 @@ class TuringMachine:
             mark_multiplier = 100 / test
             self.start_time = time.time()
             for x in range(0 + log_flag, test + log_flag):
+                if observer is not None:
+                    observer.set_progress('Проверяем', x, test)
                 values = [abs(x + randint(-5, 5)) + log_flag for _ in range(self.variables_num)]
                 if self.variables_num > 0:
                     values[0] = x
