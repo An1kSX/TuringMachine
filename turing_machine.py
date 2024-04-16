@@ -92,8 +92,6 @@ class TuringMachine:
                 log_b = f'log({log_base})'
                 func = func.replace(logarithm, f'{log_a} / {log_b}')
 
-
-
         try:
             func_value = int(evaluate(func))
         except Exception:
