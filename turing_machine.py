@@ -95,7 +95,6 @@ class TuringMachine:
 
 
         try:
-            print(func)
             func_value = int(evaluate(func))
         except Exception:
             raise Exception('Неправильная запись функции.\n'
