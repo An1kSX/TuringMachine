@@ -1,12 +1,14 @@
 import re
 import time
 
+from numexpr import evaluate
 from random import randint
 from typing import Union
 
 from .read_file import mt_code_read
 
 RE_VARS = re.compile(r"x[0-9]+")
+RE_LOGARITHM = re.compile(r"log\d+[(]\d+[)]")
 
 
 class TuringMachine:
@@ -50,7 +52,7 @@ class TuringMachine:
                 if not ok:
                     break
                 MT_value = sum([int(j) for j in self.tape]) - 1
-                func_value = self.calculate(values)
+                func_value = self.calculate(values, log_flag)
                 if MT_value != func_value:
                     self.logs += (f'Ошибка! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}, '
                                   f'Значения переменных: {values}\n')
@@ -76,12 +78,27 @@ class TuringMachine:
                 self.logs += f'Успешно! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}\n'
             return mark, self.logs
 
-    def calculate(self, values: list[int]) -> int:
+    def calculate(self, values: list[int], log_flag: bool) -> int:
         func = self.function
         for var in range(self.variables_num):
             func = func.replace(self.variables_names[var], str(values[var]))
+
+        if log_flag:
+            logarithms = re.findall(RE_LOGARITHM, func)
+            for logarithm in logarithms:
+                log_base = logarithm.split('(')
+                log_base = int(log_base[0][3:])
+                log_a = logarithm.replace(f"log{log_base}", "log")
+                log_b = f'log({log_base})'
+                if min(values) > 0:
+                    func = func.replace(logarithm, f'{log_a} / {log_b}')
+                else:
+                    func = func.replace(logarithm, log_b)
+
+
+
         try:
-            func_value = int(eval(func))
+            func_value = int(evaluate(func))
         except Exception:
             raise Exception('Неправильная запись функции.\n'
                             'Переменные следует называть: x1, x2, ..., xn\n'
@@ -90,8 +107,8 @@ class TuringMachine:
                             'Сложение: x1+2 / x1+x2\n'
                             'Остаток от деления: x1mod7 / x1modx2\n'
                             'Деление без остатка: x1div3 / x1divx2\n'
-                            'Логарифм: log(x1, 2) / log(x1, x2). '
-                            'Основание логарифма - второй аргумент')
+                            'Логарифм: log2(x1) / logx2(x1). '
+                            'Основание логарифма - число сразу после log')
         return func_value
 
     def get_mark(self, correct_answers: int, criteria: list[int], mark_multiplier: float) -> int:
