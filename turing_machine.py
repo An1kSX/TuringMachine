@@ -5,7 +5,7 @@ from numexpr import evaluate
 from random import randint
 from typing import Union
 
-from .read_file import mt_code_read
+from read_file import mt_code_read
 
 RE_VARS = re.compile(r"x[0-9]+")
 RE_LOGARITHM = re.compile(r"log\d+[(]\d+[)]")
@@ -90,14 +90,12 @@ class TuringMachine:
                 log_base = int(log_base[0][3:])
                 log_a = logarithm.replace(f"log{log_base}", "log")
                 log_b = f'log({log_base})'
-                if min(values) > 0:
-                    func = func.replace(logarithm, f'{log_a} / {log_b}')
-                else:
-                    func = func.replace(logarithm, log_b)
+                func = func.replace(logarithm, f'{log_a} / {log_b}')
 
 
 
         try:
+            print(func)
             func_value = int(evaluate(func))
         except Exception:
             raise Exception('Неправильная запись функции.\n'
