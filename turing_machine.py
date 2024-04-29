@@ -1,7 +1,8 @@
 import re
 import time
+import math
 
-from numexpr import evaluate
+from simpleeval import simple_eval
 from random import randint
 from typing import Union
 
@@ -93,7 +94,7 @@ class TuringMachine:
                 func = func.replace(logarithm, f'{log_a} / {log_b}')
 
         try:
-            func_value = int(evaluate(func))
+            func_value = int(simple_eval(func, functions={"log": lambda x: math.log(x)}))
         except Exception:
             raise Exception('Неправильная запись функции.\n'
                             'Переменные следует называть: x1, x2, ..., xn\n'
