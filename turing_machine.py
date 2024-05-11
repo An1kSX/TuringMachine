@@ -1,12 +1,12 @@
+import math
 import re
 import time
-import math
-
-from simpleeval import simple_eval
 from random import randint
 from typing import Union
 
-from read_file import mt_code_read
+from simpleeval import simple_eval
+
+from .read_file import mt_code_read
 
 RE_VARS = re.compile(r"x[0-9]+")
 RE_LOGARITHM = re.compile(r"log\d+[(]\d+[)]")
