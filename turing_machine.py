@@ -2,7 +2,6 @@ import math
 import re
 import time
 from random import randint
-from typing import Union
 
 from simpleeval import simple_eval
 
@@ -25,8 +24,7 @@ class TuringMachine:
         self.start_time = 0
         self.logs = ''
 
-    def test(self, submission_file: str, problem: str, criteria: list[int], time_limit: int,
-             test: Union[list[int], int], observer=None) -> tuple:
+    def test(self, submission_file, problem, criteria, time_limit, test, observer=None):
         self.program, self.logs = mt_code_read(submission_file)
         if len(self.program) == 0:
             return 2, self.logs
@@ -79,7 +77,7 @@ class TuringMachine:
                 self.logs += f'Успешно! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}\n'
             return mark, self.logs
 
-    def calculate(self, values: list[int], log_flag: bool) -> int:
+    def calculate(self, values, log_flag):
         func = self.function
         for var in range(self.variables_num):
             func = func.replace(self.variables_names[var], str(values[var]))
@@ -107,7 +105,7 @@ class TuringMachine:
                             'Основание логарифма - число сразу после log')
         return func_value
 
-    def get_mark(self, correct_answers: int, criteria: list[int], mark_multiplier: float) -> int:
+    def get_mark(self, correct_answers, criteria, mark_multiplier):
         score = correct_answers * mark_multiplier
         if score >= criteria[0]:
             return 5
@@ -118,7 +116,7 @@ class TuringMachine:
         else:
             return 2
 
-    def run(self, tape: list) -> bool:
+    def run(self, tape):
         self.tape = tape
         change_to = 0
         move_to = 1
@@ -144,7 +142,7 @@ class TuringMachine:
                 return False
         return True
 
-    def tape_builder(self, current_index: int) -> int:
+    def tape_builder(self, current_index):
         while current_index >= len(self.tape):
             self.tape += '0'
         while current_index < 0:
