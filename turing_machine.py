@@ -1,17 +1,19 @@
-import math
 import re
 import time
-from random import randint
+import math
 
 from simpleeval import simple_eval
+from random import randint
+from typing import Union
 
-from .read_file import mt_code_read
+from read_file import mt_code_read
 
 RE_VARS = re.compile(r"x[0-9]+")
 RE_LOGARITHM = re.compile(r"log\d+[(]\d+[)]")
 
 
 class TuringMachine:
+    """Данный класс предназначен для проверки корректности кода машиный Тьюринга"""
     def __init__(self):
         self.program = None
         self.tape = None
@@ -20,11 +22,11 @@ class TuringMachine:
         self.variables_num = 0
         self.function = None
         self.variables_names = None
-        self.time_limit = 10
-        self.start_time = 0
+        self.time_limit = 1
         self.logs = ''
 
-    def test(self, submission_file, problem, criteria, time_limit, test, observer=None):
+    def test(self, submission_file: str, problem: str, criteria: list[int],
+             test: Union[list[int], int], observer=None) -> tuple:
         self.program, self.logs = mt_code_read(submission_file)
         if len(self.program) == 0:
             return 2, self.logs
@@ -34,24 +36,22 @@ class TuringMachine:
         variables_in_problem = re.findall(RE_VARS, problem)
         self.variables_names = sorted(list(set(variables_in_problem)))
         self.variables_num = len(self.variables_names)
-        self.time_limit = time_limit
         if type(test) is int:
             correct_answers = 0
             log_flag = ('log' in self.function)
-            mark_multiplier = 100 / test
-            self.start_time = time.time()
-            for x in range(0 + log_flag, test + log_flag):
+            combinations = self.generate_combinations(test)
+            mark_multiplier = 100 / len(combinations)
+            for combination in combinations:
                 if observer is not None:
                     observer.set_progress('Проверяем', x, test)
-                values = [abs(x + randint(-5, 5)) + log_flag for _ in range(self.variables_num)]
-                if self.variables_num > 0:
-                    values[0] = x
+                values = [x + log_flag for x in combination]
                 mt_tape = '0'.join(j for j in [''.join(str(1) for _ in range(j + 1)) for j in values])
                 ok = self.run(list(mt_tape))
                 if not ok:
-                    break
-                MT_value = sum([int(j) for j in self.tape]) - 1
+                    self.logs += f"Значения переменных: {values}\n"
+                    continue
                 func_value = self.calculate(values, log_flag)
+                MT_value = sum([int(j) for j in self.tape]) - 1
                 if MT_value != func_value:
                     self.logs += (f'Ошибка! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}, '
                                   f'Значения переменных: {values}\n')
@@ -62,22 +62,25 @@ class TuringMachine:
             self.logs += f'Количество правильных ответов: {correct_answers}'
             mark = self.get_mark(correct_answers, criteria, mark_multiplier)
             return mark, self.logs
+            
         else:
             if len(test) != self.variables_num:
                 raise Exception('Количество переменных не совпадает с количеством поданных значений. Переменные '
                                 'необходимо называть: x1, x2, ..., xn')
             mt_tape = '0'.join(j for j in [''.join(str(1) for _ in range(j + 1)) for j in test])
-            self.run(list(mt_tape))
+            ok = self.run(list(mt_tape))
+            if not ok:
+                self.logs += f"Значения переменных: {test}"
             MT_value = sum([int(j) for j in self.tape]) - 1
-            func_value = self.calculate(test)
+            func_value = self.calculate(test, 0)
             mark = {True: 5, False: 2}[MT_value == func_value]
-            if mark == 2:
-                self.logs += f'Ошибка! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}\n'
-            else:
-                self.logs += f'Успешно! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}\n'
+            if mark == 2 and ok:
+                self.logs += f'Ошибка! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}'
+            elif mark > 2:
+                self.logs += f'Успешно! Значение функции: {func_value}, Значение Машины Тьюринга: {MT_value}'
             return mark, self.logs
 
-    def calculate(self, values, log_flag):
+    def calculate(self, values: list[int], log_flag: bool) -> int:
         func = self.function
         for var in range(self.variables_num):
             func = func.replace(self.variables_names[var], str(values[var]))
@@ -105,7 +108,7 @@ class TuringMachine:
                             'Основание логарифма - число сразу после log')
         return func_value
 
-    def get_mark(self, correct_answers, criteria, mark_multiplier):
+    def get_mark(self, correct_answers: int, criteria: list[int], mark_multiplier: float) -> int:
         score = correct_answers * mark_multiplier
         if score >= criteria[0]:
             return 5
@@ -116,13 +119,14 @@ class TuringMachine:
         else:
             return 2
 
-    def run(self, tape):
+    def run(self, tape: list) -> bool:
         self.tape = tape
         change_to = 0
         move_to = 1
         new_state = 2
         current_index = 0
         current_state = self.start_state
+        start_time = time.time()
         while True:
             if current_index >= len(self.tape) or current_index < 0:
                 current_index = self.tape_builder(current_index)
@@ -136,16 +140,36 @@ class TuringMachine:
                 break
             current_index += self.movement_encode[current_row[move_to]]
             current_state = current_row[new_state]
-            working_time = time.time() - self.start_time
+            working_time = time.time() - start_time
             if working_time > self.time_limit:
-                self.logs += 'Превышено время работы программы\n'
+                self.logs += 'Превышено время работы программы! '
                 return False
+
         return True
 
-    def tape_builder(self, current_index):
+    def tape_builder(self, current_index: int) -> int:
         while current_index >= len(self.tape):
             self.tape += '0'
         while current_index < 0:
             self.tape = ['0'] + self.tape
             current_index += 1
         return current_index
+
+    def generate_combinations(self, max_num: int):
+        def backtrack(current_combination, index):
+            if len(combinations) >= 30:
+                return
+
+            if index == self.variables_num:
+                combinations.append(tuple(current_combination))
+                return
+
+            for value in range(max_num + 1):
+                current_combination.append(value)
+                backtrack(current_combination, index + 1)
+                current_combination.pop()
+
+        combinations = []
+        backtrack([], 0)
+
+        return combinations
