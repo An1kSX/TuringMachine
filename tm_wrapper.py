@@ -1,12 +1,11 @@
 from pathlib import Path
 import pandas as pd
-import tm_interface
+from native import tm_test
+import ctypes
+
 
 
 class TuringMachine:
-	def __init__(self):
-		self._tm = tm_interface.TuringMachine()
-
 	@staticmethod
 	def _xlsx_to_csv(xlsx_path: Path) -> Path:
 		csv_path = xlsx_path.with_suffix('.csv')
@@ -22,4 +21,13 @@ class TuringMachine:
 		if path.suffix.lower() in {'.xlsx', '.xls'}:
 			path = self._xlsx_to_csv(path)
 
-		return self._tm.test(str(path), problem, criteria, time_limit, launch_args)
+		criteria_str = ",".join(map(str, criteria)).encode("utf‑8")
+		path = str(path).encode("utf‑8")
+		problem = problem.encode("utf‑8")
+		log_buf = ctypes.create_string_buffer(16 * 1024)
+
+		mark = tm_test(path, problem, criteria_str, time_limit, launch_args, log_buf, ctypes.sizeof(log_buf))
+
+		logs = logs = log_buf.value.decode("utf-8", errors="replace")
+
+		return mark, logs
