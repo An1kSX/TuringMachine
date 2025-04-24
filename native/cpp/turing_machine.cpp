@@ -71,6 +71,7 @@ int TuringMachine::calculate(const std::vector<int>& values, bool log_flag) {
             "Остаток от деления: x1mod7 / x1modx2\n"
             "Деление без остатка: x1div3 / x1divx2\n"
             "Логарифм: log2(x1) / logx2(x1). Основание логарифма - число сразу после log");
+    }
 }
 
 int TuringMachine::get_mark(int correct_answers, const std::vector<int>& criteria, double mark_multiplier) {
