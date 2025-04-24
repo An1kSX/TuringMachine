@@ -14,7 +14,7 @@ class TuringMachine:
 
 		return csv_path
 
-	def test(self, submission_file, problem, criteria, time_limit = 30, launch_args = 1):
+	def test(self, submission_file, problem, criteria, time_limit = 30, launch_args = 1, observer=None):
 		path = Path(submission_file)
 		if path.suffix.lower() in {'.xlsx', '.xls'}:
 			path = self._xlsx_to_csv(path)
