@@ -22,7 +22,7 @@ else:
 
 LIB_PATH = BUILT / LIB_NAME
 
-def _build_library() -> Path:
+def _build_library():
     cpp_dir = HERE / "cpp"
     sources = sorted(str(p) for p in cpp_dir.glob("*.cpp"))
     if not sources:
@@ -52,13 +52,13 @@ _lib = _load_library()
 
 _tm_test = _lib.tm_test
 _tm_test.argtypes = [
-    c_char_p,  # file
-    c_char_p,  # problem
-    c_char_p,  # criteria csv
-    c_int,     # time_limit
-    c_int,     # launch_args
-    c_char_p,  # log buffer
-    c_int      # log buffer size
+    c_char_p,
+    c_char_p,
+    c_char_p,
+    c_int,
+    c_int,
+    c_char_p,
+    c_int
 ]
 _tm_test.restype = c_int
 
@@ -68,7 +68,8 @@ def tm_test(file_b: bytes,
              crit_csv_b: bytes,
              time_limit: int,
              launch_args: int,
-             log_buf, log_sz: int):
+             log_buf, log_sz: int,
+             observer=None):
 
     return _tm_test(file_b, prob_b, crit_csv_b,
                      time_limit, launch_args,
