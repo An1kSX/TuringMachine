@@ -1,4 +1,4 @@
-﻿#include "read_file.h"
+#include "read_file.h"
 #include <fstream>
 #include <sstream>
 #include <set>
@@ -64,8 +64,8 @@ std::pair<Program, std::string> mt_code_read(const std::string& path) {
         std::string col = header[i];
         if (col == "A") idxA = i;
         else if (col == "Q") idxQ = i;
-        else if (col == "φ") idxPhi = i;
-        else if (col == "ψ") idxPsi = i;
+        else if (col == "phi") idxPhi = i;
+        else if (col == "psi") idxPsi = i;
         else if (col == "H") idxH = i;
     }
     if (idxA == -1 || idxQ == -1 || idxPhi == -1 || idxPsi == -1 || idxH == -1) {
@@ -136,6 +136,7 @@ std::pair<Program, std::string> mt_code_read(const std::string& path) {
             program[phi] = { {0, 'S', phi}, {1, 'S', phi} };
         }
     }
+    move_alphabet.insert({'L','R','S'}); 
     logs = "Файл успешно считан\n";
     std::set<char> valid_moves = { 'L', 'R', 'S' };
     if (move_alphabet != valid_moves) {
