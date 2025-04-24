@@ -68,8 +68,8 @@ def tm_test(file_b: bytes,
              crit_csv_b: bytes,
              time_limit: int,
              launch_args: int,
-             log_buf, log_sz: int,
-             observer=None):
+             log_buf, log_sz: int
+             ):
 
     return _tm_test(file_b, prob_b, crit_csv_b,
                      time_limit, launch_args,
