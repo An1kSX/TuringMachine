@@ -4,7 +4,6 @@
 #include <chrono>
 #include <sstream>
 #include <iostream>
-#include <regex>
 #include <set>
 #include <stdexcept>
 #include <algorithm>
@@ -45,13 +44,30 @@ void TuringMachine::replaceVariables(std::string& expr, const std::vector<std::s
 }
 
 void TuringMachine::processLogFunctions(std::string& expr) {
-    std::regex re("log(\\d+)\\((\\d+)\\)");
-    std::smatch match;
-    while (std::regex_search(expr, match, re)) {
-        std::string base = match[1];
-        std::string argument = match[2];
-        std::string replacement = "log(" + argument + ") / log(" + base + ")";
-        expr = match.prefix().str() + replacement + match.suffix().str();
+    size_t pos = 0;
+    while ((pos = expr.find("log", pos)) != std::string::npos) {
+        size_t base_start = pos + 3;
+
+        size_t base_end = base_start;
+        while (base_end < expr.size() && std::isdigit(expr[base_end])) {
+            ++base_end;
+        }
+        if (base_end == base_start || base_end >= expr.size() || expr[base_end] != '(') {
+            pos = base_end;
+            continue;
+        }
+
+        size_t arg_start = base_end + 1;
+        size_t arg_end = expr.find(')', arg_start);
+        if (arg_end == std::string::npos) break;
+
+        std::string base_str = expr.substr(base_start, base_end - base_start);
+        std::string arg_str  = expr.substr(arg_start, arg_end - arg_start);
+
+        std::string replacement = "log(" + arg_str + ")/log(" + base_str + ")";
+        expr.replace(pos, arg_end - pos + 1, replacement);
+
+        pos += replacement.size();
     }
 }
 
@@ -176,13 +192,14 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
     function_str = replaceAll(function_str, "mod", "%");
     function_str = replaceAll(function_str, "^", "**");
 
-    std::regex var_re("x[0-9]+");
-    std::sregex_iterator iter(function_str.begin(), function_str.end(), var_re);
-    std::sregex_iterator end;
     std::set<std::string> vars_set;
-    while (iter != end) {
-        vars_set.insert(iter->str());
-        ++iter;
+    for (size_t i = 0; i + 1 < function_str.size(); ++i) {
+        if (function_str[i] == 'x' && std::isdigit(function_str[i+1])) {
+            size_t j = i + 2;
+            while (j < function_str.size() && std::isdigit(function_str[j])) ++j;
+            vars_set.insert(function_str.substr(i, j-i));
+            i = j - 1;
+        }
     }
     variables_names.assign(vars_set.begin(), vars_set.end());
     std::sort(variables_names.begin(), variables_names.end());
@@ -255,13 +272,14 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
     function_str = replaceAll(function_str, "mod", "%");
     function_str = replaceAll(function_str, "^", "**");
 
-    std::regex var_re("x[0-9]+");
-    std::sregex_iterator iter(function_str.begin(), function_str.end(), var_re);
-    std::sregex_iterator end;
     std::set<std::string> vars_set;
-    while (iter != end) {
-        vars_set.insert(iter->str());
-        ++iter;
+    for (size_t i = 0; i + 1 < function_str.size(); ++i) {
+        if (function_str[i] == 'x' && std::isdigit(function_str[i+1])) {
+            size_t j = i + 2;
+            while (j < function_str.size() && std::isdigit(function_str[j])) ++j;
+            vars_set.insert(function_str.substr(i, j-i));
+            i = j - 1;
+        }
     }
     variables_names.assign(vars_set.begin(), vars_set.end());
     std::sort(variables_names.begin(), variables_names.end());
