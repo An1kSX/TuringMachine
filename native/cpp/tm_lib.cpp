@@ -41,13 +41,15 @@ TM_API int tm_test(
         auto criteria = parse_csv_int(criteria_csv);
 
         TuringMachine tm;
-        auto [mark, logs] = tm.test(
+        std::pair<int, std::string> res = tm.test(
             file ? file : "",
             problem ? problem : "",
             criteria,
             time_limit,
             launch_args
-        );
+            );
+        int mark = res.first;
+        const std::string& logs = res.second;
 
         if (log_buf && log_buf_sz > 0)
             COPY_STR(log_buf, logs.c_str(), log_buf_sz);
