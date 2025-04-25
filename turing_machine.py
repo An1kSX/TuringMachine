@@ -16,6 +16,8 @@ class TuringMachine:
 
 	def test(self, submission_file, problem, criteria, time_limit = 30, launch_args = '1', observer=None):
 		path = Path(submission_file)
+		if not launch_args:
+			launch_args = 1
 		try:
 			launch_args = int(launch_args)
 			
