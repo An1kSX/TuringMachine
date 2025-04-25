@@ -30,9 +30,13 @@ void TuringMachine::replaceVariables(std::string& expr, const std::vector<std::s
     for (size_t i = 0; i < vars.size(); i++) {
         varValues.push_back({ vars[i], values[i] });
     }
-    std::sort(varValues.begin(), varValues.end(), [](auto& a, auto& b) {
-        return a.first.size() > b.first.size();
-        });
+	std::sort(varValues.begin(), varValues.end(),
+		[](const std::pair<std::string,int>& a,
+		   const std::pair<std::string,int>& b)
+		{
+			return a.first.size() > b.first.size();
+		}
+	);
     for (auto& p : varValues) {
         std::string var = p.first;
         std::string val = std::to_string(p.second);
