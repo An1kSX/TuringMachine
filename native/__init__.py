@@ -11,18 +11,18 @@ BUILT.mkdir(exist_ok=True)
 
 if sys.platform.startswith("linux"):
     LIB_NAME = "libtm_native.so"
-    COMPILER = ["g++", "-std=c++17", "-O2", "-fPIC", "-shared"]
+    COMPILER = ["g++", "-std=c++11", "-O2", "-fPIC", "-shared"]
 
 elif sys.platform == "darwin":
     LIB_NAME = "libtm_native.dylib"
-    COMPILER = ["clang++", "-std=c++17", "-O2",
+    COMPILER = ["clang++", "-std=c++11", "-O2",
                 "-dynamiclib", "-fPIC",
                 "-Wl,-install_name,@rpath/libtm_native.dylib"
                 ]
 
 elif sys.platform == "win32":
     LIB_NAME = "tm_native.dll"
-    COMPILER = ["cl", "/std:c++17", "/O2", "/LD"]
+    COMPILER = ["cl", "/std:c++11", "/O2", "/LD"]
 
 else:
     raise RuntimeError(f"Unsupported platform: {sys.platform}")
