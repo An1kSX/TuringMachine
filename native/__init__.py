@@ -11,13 +11,12 @@ BUILT.mkdir(exist_ok=True)
 
 if sys.platform.startswith("linux"):
     LIB_NAME = "libtm_native.so"
-    COMPILER = ["g++", "-std=c++11", "-O2", "-fPIC", "-shared", "-static-libstdc++"]
+    COMPILER = ["g++", "-std=c++11", "-O2", "-fPIC", "-shared"]
 
 elif sys.platform == "darwin":
     LIB_NAME = "libtm_native.dylib"
     COMPILER = [
         "g++", "-std=c++11", "-O2", "-fPIC", "-shared",
-        "-static-libstdc++",
         "-Wl,-install_name,@rpath/libtm_native.dylib"
         ]
 
