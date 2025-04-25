@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from native import tm_test
+from .native import tm_test
 import ctypes
 
 
