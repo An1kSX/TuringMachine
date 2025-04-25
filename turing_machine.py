@@ -19,10 +19,8 @@ class TuringMachine:
 		try:
 			launch_args = int(launch_args)
 			
-		except ValueError:
-			logs = 'Значение launch_args должно быть целочисленным'
-			mark = 2
-			return mark, logs
+		except:
+			raise ValueError('Значение launch_args должно быть целочисленным')
 		
 		if path.suffix.lower() in {'.xlsx', '.xls'}:
 			path = self._xlsx_to_csv(path)
