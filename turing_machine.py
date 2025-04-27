@@ -30,7 +30,7 @@ class TuringMachine:
 		criteria_str = ",".join(map(str, criteria)).encode("utf-8")
 		path = str(path).encode("utf-8")
 		problem = problem.encode("utf-8")
-		log_buf = ctypes.create_string_buffer(16 * 1024)
+		log_buf = ctypes.create_string_buffer(256 * 1024)
 
 		mark = tm_test(path, problem, criteria_str, time_limit, launch_args, log_buf, ctypes.sizeof(log_buf))
 
