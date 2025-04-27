@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+#include <random>
 
 
 TuringMachine::TuringMachine() : variables_num(0) {
@@ -158,22 +159,73 @@ bool TuringMachine::run(double time_limit) {
     return true;
 }
 
-std::vector<std::vector<int>> TuringMachine::generate_combinations(int max_num) {
+bool TuringMachine::containsMulOrPow(const std::string &expr) {
+    bool has_mul_vars = false;
+    bool has_pow       = false;
+
+    for (size_t i = 0; i < expr.size(); ++i) {
+        if (expr[i] == '^') {
+            has_pow = true;
+        }
+
+        else if (i + 1 < expr.size() && expr[i] == '*' && expr[i+1] == '*') {
+            has_pow = true;
+        }
+
+        if (expr[i] == 'x') {
+            size_t j = i + 1;
+            while (j < expr.size() && std::isdigit(expr[j])) ++j;
+            if (j < expr.size() && expr[j] == '*' 
+             && j+1 < expr.size() && expr[j+1] == 'x') {
+                has_mul_vars = true;
+            }
+        }
+
+        if (has_pow || has_mul_vars) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::vector<std::vector<int>> TuringMachine::generate_combinations(int max_tests, bool difficult) {
+    const int small_max = 5;
+    int n = variables_num;
     std::vector<std::vector<int>> combinations;
-    std::vector<int> current;
-    std::function<void(int)> backtrack = [&](int index) {
-        if (combinations.size() >= 60) return;
-        if (index == variables_num) {
+    combinations.reserve(max_tests);
+
+    int difficult_tests = difficult ? 30 : 145;
+
+    std::vector<int> current(n);
+    bool done = false;
+
+    // 1) Лексикографический перебор
+    std::function<void(int)> backtrack = [&](int idx) {
+        if (done) return;
+        if (idx == n) {
             combinations.push_back(current);
+            if ((int)combinations.size() >= max_tests) done = true;
             return;
         }
-        for (int value = 0; value <= max_num; value++) {
-            current.push_back(value);
-            backtrack(index + 1);
-            current.pop_back();
+        for (int v = 0; v <= small_max; ++v) {
+            current[idx] = v;
+            backtrack(idx + 1);
+            if (done) return;
         }
-        };
+    };
     backtrack(0);
+
+    if ((int)combinations.size() < max_tests) {
+        std::mt19937_64 rng{std::random_device{}()};
+        std::uniform_int_distribution<int> dist(0, small_max + difficult_tests);
+        while ((int)combinations.size() < max_tests) {
+            std::vector<int> rnd(n);
+            for (int i = 0; i < n; ++i) rnd[i] = dist(rng);
+            combinations.push_back(std::move(rnd));
+        }
+    }
+
     return combinations;
 }
 
@@ -207,7 +259,7 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
 
     int correct_answers = 0;
     bool log_flag = (function_str.find("log") != std::string::npos);
-    auto combinations = generate_combinations(launch_args);
+    auto combinations = generate_combinations(launch_args, containsMulOrPow(function_str));
     double mark_multiplier = 100.0 / combinations.size();
     double limit = 30.0 / combinations.size();
 
@@ -222,6 +274,7 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
             tape += std::string(values[i] + 1, '1');
         }
         bool ok = run(limit);
+
         if (!ok) {
             std::ostringstream oss;
             oss << "Значения переменных: ";
@@ -231,6 +284,29 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
             continue;
         }
         int func_value = calculate(values, log_flag);
+
+        int segments = 0;
+        bool inBlock = false;
+        for (char c : tape) {
+            if (c == '1') {
+                if (!inBlock) {
+                    inBlock = true;
+                    ++segments;
+                }
+            }
+            else {
+                inBlock = false;
+            }
+        }
+        if (segments != 1) {
+            std::ostringstream oss;
+            oss << "Ошибка! Значение функции: " << func_value << ", на ленте найдено " << segments
+                << " чисел (должно быть ровно 1 число).\n"
+                << "Лента: " << tape << "\n";
+            logs += oss.str();
+            continue;
+        }
+
         int MT_value = 0;
         for (char c : tape) {
             MT_value += (c - '0');
@@ -301,12 +377,40 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
         for (auto v : testValues) oss << v << " ";
         logs += oss.str();
     }
+
+    int func_value = calculate(testValues, false);
+
+    int segments = 0;
+    bool inBlock = false;
+    for (char c : tape) {
+        if (c == '1') {
+            if (!inBlock) {
+                inBlock = true;
+                ++segments;
+            }
+        }
+        else {
+            inBlock = false;
+        }
+    }
+    if (segments != 1) {
+        std::ostringstream oss;
+        oss << "Ошибка! Значение функции: " << func_value << ", на ленте найдено " << segments
+            << " чисел (должно быть ровно 1 число).\n"
+            << "Лента: " << tape << "\n";
+        logs += oss.str();
+        
+        int mark = 2;
+
+        return { mark, logs };
+    }
+
     int MT_value = 0;
     for (char c : tape) {
         MT_value += (c - '0');
     }
     MT_value -= 1;
-    int func_value = calculate(testValues, false);
+
     int mark = (MT_value == func_value) ? 5 : 2;
     if (mark == 2 && ok) {
         std::ostringstream oss;

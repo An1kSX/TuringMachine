@@ -27,10 +27,11 @@ private:
     int get_mark(int correct_answers, const std::vector<int>& criteria, double mark_multiplier);
     bool run(double time_limit);
     int tape_builder(int current_index);
-    std::vector<std::vector<int>> generate_combinations(int max_num);
+    std::vector<std::vector<int>> generate_combinations(int max_num, bool difficult);
 
 
     std::string replaceAll(std::string str, const std::string& from, const std::string& to);
     void replaceVariables(std::string& expr, const std::vector<std::string>& vars, const std::vector<int>& values);
     void processLogFunctions(std::string& expr);
+    bool containsMulOrPow(const std::string &expr);
 };
