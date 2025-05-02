@@ -301,8 +301,9 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
         if (segments != 1) {
             std::ostringstream oss;
             oss << "Ошибка! Значение функции: " << func_value << ", на ленте найдено " << segments
-                << " чисел (должно быть ровно 1 число).\n"
-                << "Лента: " << tape << "\n";
+                << " чисел (должно быть ровно 1 число), " << "Значения переменных: ";
+                for (auto v : values) oss << v << " ";
+                oss << "\nЛента: " << tape << "\n";
             logs += oss.str();
             continue;
         }
@@ -396,8 +397,9 @@ std::pair<int, std::string> TuringMachine::test(const std::string& submission_fi
     if (segments != 1) {
         std::ostringstream oss;
         oss << "Ошибка! Значение функции: " << func_value << ", на ленте найдено " << segments
-            << " чисел (должно быть ровно 1 число).\n"
-            << "Лента: " << tape << "\n";
+            << " чисел (должно быть ровно 1 число), " << "Значения переменных: ";
+            for (auto v : testValues) oss << v << " ";
+            oss << "\nЛента: " << tape << "\n";
         logs += oss.str();
         
         int mark = 2;
