@@ -48,15 +48,14 @@ def _build_library():
 
     subprocess.run(make_cmd, check=True, cwd=HERE)
 
-    lib_path = BUILD / LIB_NAME
+    lib_path = BUILT / LIB_NAME
     if not lib_path.exists():
         raise RuntimeError(f"Сборка завершилась, но библиотека не найдена по пути {lib_path}")
 
     return lib_path
 
 def _load_library():
-    if not LIB_PATH.exists():
-        _build_library()
+    _build_library()
     return cdll.LoadLibrary(str(LIB_PATH))
 
 _lib = _load_library()
