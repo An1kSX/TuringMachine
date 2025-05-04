@@ -9,12 +9,12 @@ else
         LIB_NAME := libtm_native.dylib
         CXX := g++
         CXXFLAGS := -std=c++11 -O2 -fPIC
-        LDFLAGS := -shared -static-libstdc++ -Wl,-install_name,@rpath/$(LIB_NAME)
+        LDFLAGS := -shared -Wl,-install_name,@rpath/$(LIB_NAME)
     else
         LIB_NAME := libtm_native.so
         CXX := g++
         CXXFLAGS := -std=c++11 -O2 -fPIC
-        LDFLAGS := -shared -static-libstdc++
+        LDFLAGS := -shared
     endif
 endif
 
