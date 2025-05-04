@@ -21,7 +21,7 @@ for test in tests:
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 
 	file_name = test.replace("*", "")
-	submission_path = os.path.join(HERE, "tests", f"{file_name}.csv")
+	submission_path = os.path.join(dir_path, "tests", f"{file_name}.csv")
 
 	print(f"Тест: {test}")
 	print(f'Рабочая директория: {dir_path}')
