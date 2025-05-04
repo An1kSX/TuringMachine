@@ -1,4 +1,5 @@
 from turing_machine import TuringMachine
+import os
 
 
 mt = TuringMachine()
@@ -17,12 +18,13 @@ tests = {
 		}
 
 for test in tests:
+	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_name = test.replace("*", "")
 
 	print(f"Тест: {test}")
 
 	mark, logs = mt.test(
-		submission_file=r"C:\Users\Anik\Desktop\diplom2\tests\%s.csv" % (file_name),
+		submission_file=r"%s\tests\%s.csv" % (dir_path, file_name),
 		problem=test,
 		criteria=[98, 96, 95],
 		time_limit=30,
