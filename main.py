@@ -22,7 +22,7 @@ for test in tests:
 	print(f"Тест: {test}")
 
 	mark, logs = mt.test(
-		submission_file=r"C:\Users\Anik\Desktop\diplom2\%s.csv" % (file_name),
+		submission_file=r"C:\Users\Anik\Desktop\diplom2\tests\%s.csv" % (file_name),
 		problem=test,
 		criteria=[98, 96, 95],
 		time_limit=30,
