@@ -31,25 +31,28 @@ else:
 LIB_PATH = BUILT / LIB_NAME
 
 def _build_library():
-    cpp_dir = HERE / "cpp"
-    sources = sorted(str(p) for p in cpp_dir.glob("*.cpp"))
-    if not sources:
-        raise FileNotFoundError("No .cpp files found in cpp/ folder")
-
     if sys.platform == "win32":
-        cmd = COMPILER + sources + [f"/Fe{LIB_PATH}"]
+        if shutil.which("make"):
+            make_cmd = ["make"]
 
+        elif shutil.which("nmake"):
+            make_cmd = ["nmake", "/f", "Makefile"]
+
+        elif shutil.which("mingw32-make"):
+            make_cmd = ["mingw32-make"]
+
+        else:
+            raise RuntimeError("Make не найден")
     else:
-        cmd = COMPILER + sources + ["-o", str(LIB_PATH)]
+        make_cmd = ["make"]
 
-    print("Compiling native library:")
-    print("  ", " ".join(cmd))
-    subprocess.run(cmd, check=True, cwd=cpp_dir)
+    subprocess.run(make_cmd, check=True, cwd=HERE)
 
-    if not LIB_PATH.exists():
-        raise RuntimeError("Compilation finished but .so/.dll not found")
+    lib_path = BUILD / LIB_NAME
+    if not lib_path.exists():
+        raise RuntimeError(f"Сборка завершилась, но библиотека не найдена по пути {lib_path}")
 
-    return LIB_PATH
+    return lib_path
 
 def _load_library():
     if not LIB_PATH.exists():
