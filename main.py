@@ -19,12 +19,15 @@ tests = {
 
 for test in tests:
 	dir_path = os.path.dirname(os.path.realpath(__file__))
+
 	file_name = test.replace("*", "")
+	submission_path = os.path.join(HERE, "tests", f"{file_name}.csv")
 
 	print(f"Тест: {test}")
+	print(f'Рабочая директория: {dir_path}')
 
 	mark, logs = mt.test(
-		submission_file=r"%s\tests\%s.csv" % (dir_path, file_name),
+		submission_file=submission_path,
 		problem=test,
 		criteria=[98, 96, 95],
 		time_limit=30,
