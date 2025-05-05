@@ -14,7 +14,10 @@ tests = {
 		'x1*x2 + 6': 100,
 		'x1mod2 + x2 + 7': 400,
 		'x1+2*x2+3': 400,
-		'4*x1+x2': 400
+		'4*x1+x2': 400,
+		'x1^2 + x2 + 4': 50,
+		'x1 + x2 + 8': 400,
+		'x1 + 7*x2': 400
 		}
 
 for test in tests:
@@ -25,6 +28,7 @@ for test in tests:
 
 	print(f"Тест: {test}")
 	print(f'Рабочая директория: {dir_path}')
+	print(f'Директория файла: {submission_path}')
 
 	mark, logs = mt.test(
 		submission_file=submission_path,
@@ -35,7 +39,7 @@ for test in tests:
 		)
 
 	if mark < 5:
-		print(f"{logs}\nОценка: {mark}")
+		print(f"Результат: {logs}\nОценка: {mark}\n")
 
 	else:
-		print("OK")
+		print("Результат: OK\n")
