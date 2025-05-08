@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from native import tm_test
+from .native import tm_test
 import ctypes
 
 
@@ -15,6 +15,13 @@ class TuringMachine:
 		return csv_path
 
 	def test(self, submission_file, problem, criteria, time_limit = 30, launch_args = 1, observer=None):
+		if not launch_args:
+			launch_args = 1
+		try:
+			launch_args = int(launch_args)
+		except:
+			raise ValueError("Аргумент запуска должент быть типа int")
+		
 		path = Path(submission_file)
 
 		flag = False
